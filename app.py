@@ -41,7 +41,7 @@ with app:
         )
 
     gr.Examples(
-            examples=text_examples[0], 
+            examples=[text_examples[0]], 
             inputs=[base_prompt], 
             outputs=[output_image], 
             fn=orangemixs_image_generator, 
