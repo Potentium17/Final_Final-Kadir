@@ -17,24 +17,15 @@ prompt_list = [
     "a photo of an anime girl."
 ]
 
-example_image_list = [
-    "girl.png"
-]
-
 example_text_image = [
    [anime_orange_model_list[1]],
    [prompt_list[0]]
 ]
 
-example_image_image = [
-    [example_image_list[0]],
-    [anime_orange_model_list[0]],
-    [prompt_list[0]]
-]
 
 def orangemixs_text_image_generator(
-    model_id: str = 'WarriorMama777/AbyssOrangeMix',
-    prompt: str = 'a photo of an anime girl.'
+    model_id: str,
+    prompt: str,
     ):
 
     pipe = StableDiffusionPipeline.from_pretrained(model_id, torch_dtype=torch.float16)
@@ -75,12 +66,4 @@ with app:
         outputs = output_image
         )
 
-    gr.Examples(
-            examples=example_text_image, 
-            inputs=[text_model_id,text_prompt], 
-            outputs = [output_image],
-            fn=orangemixs_text_image_generator, 
-            cache_examples=True,
-            label='Text Example'
-        )
 app.launch()
