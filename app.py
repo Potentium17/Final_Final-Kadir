@@ -4,7 +4,7 @@ import torch
 
 device = "cuda" if torch.cuda.is_available else "cpu" 
 
-anime_orange_model_list = [
+anime_model_list = [
     "WarriorMama777/BloodOrangeMix",
     "WarriorMama777/AbyssOrangeMix",
     "WarriorMama777/ElyOrangeMix",
@@ -13,28 +13,29 @@ anime_orange_model_list = [
     "WarriorMama777/EerieOrangeMix"
 ]
 
-example_prompt_list = [
+prompt_list = [
     "a photo of an anime girl."
 ]
 
-example_image_list = [
+image_list = [
     "girl.png"
 ]
 
-example_text_image = [
-   [anime_orange_model_list[1]],
-   [example_prompt_list[0]]
-]
+example_text_image = [[
+   anime_model_list[1],
+   prompt_list[0],
+]]
 
-example_image_image = [
-    [example_image_list[0]],
-    [anime_orange_model_list[0]],
-    [example_prompt_list[0]]
-]
+example_image_image = [[
+    image_list[0],
+    anime_model_list[1],
+    prompt_list[0]
+]]
+
 
 def orangemixs_text_image_generator(
-    model_id: str = 'WarriorMama777/AbyssOrangeMix',
-    prompt: str = 'anime girl'
+    model_id: str = anime_model_list[1],
+    prompt: str = prompt_list[0]
     ):
 
     pipe = StableDiffusionPipeline.from_pretrained(model_id, torch_dtype=torch.float16)
@@ -44,9 +45,9 @@ def orangemixs_text_image_generator(
     return image
 
 def orangemixs_image_image_generator(
-    image_path: str = 'anime.png',
-    model_id: str = 'WarriorMama777/AbyssOrangeMix',
-    prompt: str = 'anime girl'
+    image_path: str = image_list[0],
+    model_id: str = anime_model_list[1],
+    prompt: str = prompt_list[0]
     ):
 
     init_image = Image.open(image_path)
@@ -75,30 +76,30 @@ with app:
     with gr.Row():
         with gr.Column():
             with gr.Tab('Text'):
-                text_model_id = gr.Dropdown(choices=anime_orange_model_list, value=anime_orange_model_list[0], label='Model Id')
-                text_prompt = gr.Textbox(lines=1, value=example_prompt_list[0], label='Text Prompt')
+                text_model_id = gr.Dropdown(choices=anime_model_list, value=anime_model_list[1], label='Model Id')
+                text_prompt = gr.Textbox(lines=1, value=prompt_list[0], label='Text Prompt')
                 text_predict = gr.Button(value='Predict')
 
             with gr.Tab('Image'):
-                image_path = gr.Image(type='filepath', label='Image File')
-                image_model_id = gr.Dropdown(choices=anime_orange_model_list, value=anime_orange_model_list[0], label='Model Id')
-                image_prompt = gr.Textbox(lines=1, value=example_prompt_list[0], label='Image Prompt')
+                image_file = gr.Image(type='filepath', label='Image File')
+                image_model_id = gr.Dropdown(choices=anime_model_list, value=anime_model_list[1], label='Model Id')
+                image_prompt = gr.Textbox(lines=1, value=prompt_list[0], label='Image Prompt')
                 image_predict = gr.Button(value='Predict')
 
-
-        with gr.Column():
-            output_image = gr.Image(label='Output Image')
+        with gr.Tab('Output'):
+            with gr.Column():
+                output_image = gr.Image(label='Output Image')
 
     text_predict.click(
         fn = orangemixs_text_image_generator,
         inputs = [text_model_id,text_prompt],
-        outputs = output_image
+        outputs = [output_image]
         )
 
     image_predict.click(
         fn = orangemixs_image_image_generator,
-        inputs = [image_path, image_model_id, image_prompt],
-        outputs = output_image
+        inputs = [image_file, image_model_id, image_prompt],
+        outputs = [output_image]
         )
 
     gr.Examples(
