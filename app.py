@@ -69,15 +69,16 @@ app = gr.Blocks()
 with app:
     gr.Markdown(
     """
-    ![](https://raw.githubusercontent.com/WarriorMama777/imgup/main/img/AOM3/AOM3_G_Top_comp001.webp"image_orangemixs_infographics_01")
+    <p align="center">
+    <img src="https://raw.githubusercontent.com/WarriorMama777/imgup/main/img/AOM3/AOM3_G_Top_comp001.webp" width=35% height=35%></p>
     """
     )
     gr.Markdown(
         """
-        <h5 style='text-align: center'>
+        <p style='text-align: center'>
         Follow me for more! 
         <a href='https://twitter.com/kadirnar_ai' target='_blank'>Twitter</a> | <a href='https://github.com/kadirnar' target='_blank'>Github</a> | <a href='https://www.linkedin.com/in/kadir-nar/' target='_blank'>Linkedin</a>
-        </h5>
+        </p>
         """
     )  
     with gr.Row():
@@ -107,7 +108,7 @@ with app:
 
     image_predict.click(
         fn = orangemixs_image_image_generator,
-        inputs = [image_file, image_model_id, image_prompt, bad_image_prompt],
+        inputs = [image_file, image_model_id, image_prompt],
         outputs = [output_image]
         )
 
