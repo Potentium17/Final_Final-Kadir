@@ -33,8 +33,8 @@ example_image_image = [
 ]
 
 def orangemixs_text_image_generator(
-    model_id: str = 'ArtGAN/deneme',
-    prompt: str = 'anime girl'
+    model_id: str = 'WarriorMama777/AbyssOrangeMix',
+    prompt: str = 'a photo of an anime girl.'
     ):
 
     pipe = StableDiffusionPipeline.from_pretrained(model_id, torch_dtype=torch.float16)
