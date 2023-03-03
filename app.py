@@ -1,4 +1,5 @@
 from diffusers import StableDiffusionPipeline, StableDiffusionImg2ImgPipeline
+from PIL import Image
 import gradio as gr
 import torch
 
