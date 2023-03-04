@@ -109,7 +109,7 @@ with app:
 
     image_predict.click(
         fn = orangemixs_image_image_generator,
-        inputs = [image_file, image_model_id, image_prompt],
+        inputs = [image_file, image_model_id, image_prompt, bad_image_prompt],
         outputs = [output_image]
         )
 
