@@ -68,14 +68,6 @@ def orangemixs_image_image_generator(
 
 app = gr.Blocks()
 with app:
-    """
-    gr.Markdown(
-    """
-    <p align="center">
-    <img src="https://raw.githubusercontent.com/WarriorMama777/imgup/main/img/AOM3/AOM3_G_Top_comp001.webp" width=35% height=35%></p>
-    """
-    )
-    """
     gr.Markdown(
         """
         <p style='text-align: center'>
