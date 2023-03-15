@@ -29,13 +29,13 @@ image_list = [
 ]
 
 example_text_image = [[
-   anime_model_list[1],
+   anime_model_list[0],
    prompt_list[0],
 ]]
 
 example_image_image = [[
     image_list[0],
-    anime_model_list[1],
+    anime_model_list[0],
     prompt_list[0],
     bad_prompt_list[0]
 ]]
