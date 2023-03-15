@@ -5,7 +5,7 @@ import torch
 import os
 
 device = "cuda" if torch.cuda.is_available else "cpu" 
-os.system(f"git clone https://huggingface.co/WarriorMama777/AbyssOrangeMix /home/user/app/AbyssOrangeMix")
+os.system(f"git lts clone https://huggingface.co/WarriorMama777/AbyssOrangeMix /home/user/app/AbyssOrangeMix")
 
 anime_model_list = [
     #"WarriorMama777/BloodOrangeMix",
