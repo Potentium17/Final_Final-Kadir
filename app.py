@@ -42,7 +42,7 @@ example_image_image = [[
 
 
 def orangemixs_text_image_generator(
-    model_id: str = anime_model_list[1],
+    model_id: str = anime_model_list[0],
     prompt: str = prompt_list[0],
     negative_prompt=bad_prompt_list[0]
     ):
@@ -55,7 +55,7 @@ def orangemixs_text_image_generator(
 
 def orangemixs_image_image_generator(
     image_path: str = image_list[0],
-    model_id: str = anime_model_list[1],
+    model_id: str = anime_model_list[0],
     prompt: str = prompt_list[0],
     negative_prompt=bad_prompt_list[0]
     ):
@@ -81,7 +81,7 @@ with app:
     with gr.Row():
         with gr.Column():
             with gr.Tab('Text'):
-                text_model_id = gr.Dropdown(choices=anime_model_list, value=anime_model_list[1], label='Model Id')
+                text_model_id = gr.Dropdown(choices=anime_model_list, value=anime_model_list[0], label='Model Id')
                 text_prompt = gr.Textbox(lines=1, value=prompt_list[0], label='Base Prompt')
                 bad_text_prompt = gr.Textbox(lines=1, value=bad_prompt_list[0], label='Bad Prompt')
                 text_predict = gr.Button(value='Predict')
