@@ -2,16 +2,18 @@ from diffusers import StableDiffusionPipeline, StableDiffusionImg2ImgPipeline
 from PIL import Image
 import gradio as gr
 import torch
+import os
 
 device = "cuda" if torch.cuda.is_available else "cpu" 
+os.system(f"git clone https://huggingface.co/WarriorMama777/AbyssOrangeMix /home/user/app/AbyssOrangeMix")
 
 anime_model_list = [
-    "WarriorMama777/BloodOrangeMix",
-    "WarriorMama777/AbyssOrangeMix",
-    "WarriorMama777/ElyOrangeMix",
-    "WarriorMama777/Other",
-    "WarriorMama777/AbyssOrangeMix2",
-    "WarriorMama777/EerieOrangeMix"
+    #"WarriorMama777/BloodOrangeMix",
+    "AbyssOrangeMix",
+    #"WarriorMama777/ElyOrangeMix",
+    #"WarriorMama777/Other",
+    #"WarriorMama777/AbyssOrangeMix2",
+    #"WarriorMama777/EerieOrangeMix"
 ]
 
 prompt_list = [
