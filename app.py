@@ -88,7 +88,7 @@ with app:
 
             with gr.Tab('Image'):
                 image_file = gr.Image(type='filepath', label='Image File')
-                image_model_id = gr.Dropdown(choices=anime_model_list, value=anime_model_list[1], label='Model Id')
+                image_model_id = gr.Dropdown(choices=anime_model_list, value=anime_model_list[0], label='Model Id')
                 image_prompt = gr.Textbox(lines=1, value=prompt_list[0], label='Image Prompt')
                 bad_image_prompt = gr.Textbox(lines=1, value=bad_prompt_list[0], label='Bad Prompt')
                 image_predict = gr.Button(value='Predict')
