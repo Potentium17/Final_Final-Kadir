@@ -1,9 +1,1 @@
-transformers
-diffusers==0.11.1
-numpy==1.23.5
-opencv_python==3.4.17.63
-Pillow==9.4.0
-torch==1.13.1
-xformers
-triton
-accelerate
+diffusion-webui==1.4.2

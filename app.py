@@ -1,30 +1,51 @@
-from inpaint_zoom.app.zoom_out_app import stable_diffusion_zoom_out_app
-from inpaint_zoom.app.zoom_in_app import StableDiffusionZoomIn
-
 import gradio as gr
 
-app = gr.Blocks()
-with app:
-    gr.HTML(
-        """
-        <h1 style='text-align: center'>
-       Stable Diffusion Infinite Zoom Out and Zoom In
-        </h1>
-        """
-    )
-    gr.HTML(
-        """
-        <h3 style='text-align: center'>
-        Follow me for more! 
-        <a href='https://twitter.com/kadirnar_ai' target='_blank'>Twitter</a> | <a href='https://github.com/kadirnar' target='_blank'>Github</a> | <a href='https://www.linkedin.com/in/kadir-nar/' target='_blank'>Linkedin</a>
-        </h3>
-        """
-    )
-    with gr.Row():
-        with gr.Column():
-            with gr.Tab('Zoom In'):
-                StableDiffusionZoomIn.app()
-            with gr.Tab('Zoom Out'):
-                stable_diffusion_zoom_out_app()
+from diffusion_webui.helpers import (
+    StableDiffusionControlNetCannyGenerator,
+    StableDiffusionControlNetDepthGenerator,
+    StableDiffusionControlNetHEDGenerator,
+    StableDiffusionControlNetMLSDGenerator,
+    StableDiffusionControlNetPoseGenerator,
+    StableDiffusionControlNetScribbleGenerator,
+    StableDiffusionControlNetSegGenerator,
+    StableDiffusionImage2ImageGenerator,
+    StableDiffusionInpaintGenerator,
+    StableDiffusionText2ImageGenerator,
+    StableDiffusionControlInpaintNetCannyGenerator,
+)
 
-app.launch(debug=True)
+
+def main():
+    app = gr.Blocks()
+    with app:
+        with gr.Row():
+            with gr.Column():
+                with gr.Tab("Text2Img"):
+                    StableDiffusionText2ImageGenerator.app()
+                with gr.Tab("Img2Img"):
+                    StableDiffusionImage2ImageGenerator.app()
+                with gr.Tab("Inpaint"):
+                    StableDiffusionInpaintGenerator.app()
+                with gr.Tab("ControlNet"):
+                    with gr.Tab("Canny"):
+                        StableDiffusionControlNetCannyGenerator.app()
+                    with gr.Tab("Depth"):
+                        StableDiffusionControlNetDepthGenerator.app()
+                    with gr.Tab("HED"):
+                        StableDiffusionControlNetHEDGenerator.app()
+                    with gr.Tab("MLSD"):
+                        StableDiffusionControlNetMLSDGenerator.app()
+                    with gr.Tab("Pose"):
+                        StableDiffusionControlNetPoseGenerator.app()
+                    with gr.Tab("Scribble"):
+                        StableDiffusionControlNetScribbleGenerator.app()
+                    with gr.Tab("Seg"):
+                        StableDiffusionControlNetSegGenerator.app()
+                with gr.Tab("ControlNet Inpaint"):
+                    StableDiffusionControlInpaintNetCannyGenerator.app()
+
+    app.launch(debug=True, enable_queue=True)
+
+
+if __name__ == "__main__":
+    main()
