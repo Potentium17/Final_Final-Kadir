@@ -1,5 +1,5 @@
 ---
-title: Stable Diffusion 2 Infinite Zoom Out
+title: T4 Work
 emoji: 🔥
 colorFrom: green
 colorTo: indigo
