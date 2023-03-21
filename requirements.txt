@@ -1,1 +1,1 @@
-diffusion-webui==1.5.2
+diffusion-webui==1.6.2
