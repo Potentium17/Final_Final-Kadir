@@ -71,7 +71,9 @@ class StableDiffusionControlNetInpaintCannyGenerator:
 
         normal_image = image_path["image"].convert("RGB").resize((512, 512))
         mask_image = image_path["mask"].convert("RGB").resize((512, 512))
-
+        normal_image = np.array(normal_image)
+        mask_image = np.array(mask_image)
+        
         control_image = self.controlnet_canny_inpaint(image_path=image_path)
         pipe = self.load_model(
             stable_model_path=stable_model_path,
