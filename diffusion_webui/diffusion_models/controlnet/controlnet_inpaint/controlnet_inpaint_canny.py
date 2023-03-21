@@ -1,159 +1,219 @@
+import cv2
 import gradio as gr
 import numpy as np
 import torch
-from diffusers import UniPCMultistepScheduler
+from diffusers import ControlNetModel
+from diffusion_webui.diffusion_models.controlnet.controlnet_inpaint.pipeline_stable_diffusion_controlnet_inpaint import StableDiffusionControlNetInpaintPipeline
 from PIL import Image
 
-from diffusion_webui.controlnet_inpaint.canny_inpaint import controlnet_canny
-from diffusion_webui.controlnet_inpaint.pipeline_stable_diffusion_controlnet_inpaint import (
-    StableDiffusionControlNetInpaintPipeline,
+from diffusion_webui.utils.model_list import (
+    controlnet_canny_model_list,
+    stable_model_list,
+)
+from diffusion_webui.utils.scheduler_list import (
+    SCHEDULER_LIST,
+    get_scheduler_list,
 )
 
-stable_inpaint_model_list = [
-    "runwayml/stable-diffusion-inpainting",
-    "stabilityai/stable-diffusion-2-inpainting",
-]
-
-controlnet_model_list = [
-    "lllyasviel/sd-controlnet-canny",
-]
-
-prompt_list = [
-    "a red panda sitting on a bench",
-]
-
-negative_prompt_list = [
-    "bad, ugly",
-]
+# https://github.com/mikonvergence/ControlNetInpaint
 
 
-def load_img(image_path: str):
-    image = Image.open(image_path)
-    image = np.array(image)
-    image = Image.fromarray(image)
+class StableDiffusionControlNetInpaintCannyGenerator:
+    def __init__(self):
+        self.pipe = None
 
-    return image
+    def load_model(self, stable_model_path, controlnet_model_path, scheduler):
+        if self.pipe is None:
+            controlnet = ControlNetModel.from_pretrained(
+                controlnet_model_path, torch_dtype=torch.float16
+            )
+            self.pipe = StableDiffusionControlNetInpaintPipeline.from_pretrained(
+                pretrained_model_name_or_path=stable_model_path,
+                controlnet=controlnet,
+                safety_checker=None,
+                torch_dtype=torch.float16,
+            )
 
+        self.pipe = get_scheduler_list(pipe=self.pipe, scheduler=scheduler)
+        self.pipe.to("cuda")
+        self.pipe.enable_xformers_memory_efficient_attention()
 
-def stable_diffusion_inpiant_controlnet_canny(
-    dict_image: str,
-    stable_model_path: str,
-    controlnet_model_path: str,
-    prompt: str,
-    negative_prompt: str,
-    controlnet_conditioning_scale: str,
-    guidance_scale: int,
-    num_inference_steps: int,
-):
-    normal_image = dict_image["image"].convert("RGB").resize((512, 512))
-    mask_image = dict_image["mask"].convert("RGB").resize((512, 512))
+        return self.pipe
 
-    controlnet, control_image = controlnet_canny(
-        dict_image=dict_image,
-        controlnet_model_path=controlnet_model_path,
-    )
+    def controlnet_canny_inpaint(
+        self,
+        image_path: str,
+    ):
+        image = image_path["image"].convert("RGB").resize((512, 512))
+        image = np.array(image)
 
-    pipe = StableDiffusionControlNetInpaintPipeline.from_pretrained(
-        pretrained_model_name_or_path=stable_model_path,
-        controlnet=controlnet,
-        torch_dtype=torch.float16,
-    )
-    pipe.to("cuda")
-    pipe.scheduler = UniPCMultistepScheduler.from_config(pipe.scheduler.config)
-    pipe.enable_xformers_memory_efficient_attention()
+        image = cv2.Canny(image, 100, 200)
+        image = image[:, :, None]
+        image = np.concatenate([image, image, image], axis=2)
+        image = Image.fromarray(image)
 
-    generator = torch.manual_seed(0)
+        return image
 
-    output = pipe(
-        prompt=prompt,
-        negative_prompt=negative_prompt,
-        num_inference_steps=num_inference_steps,
-        generator=generator,
-        image=normal_image,
-        control_image=control_image,
-        controlnet_conditioning_scale=controlnet_conditioning_scale,
-        guidance_scale=guidance_scale,
-        mask_image=mask_image,
-    ).images
+    def generate_image(
+        self,
+        image_path: str,
+        stable_model_path: str,
+        controlnet_model_path: str,
+        prompt: str,
+        negative_prompt: str,
+        num_images_per_prompt: int,
+        guidance_scale: int,
+        num_inference_step: int,
+        controlnet_conditioning_scale: int,
+        scheduler: str,
+        seed_generator: int,
+    ):
 
-    return output[0]
+        normal_image = image_path["image"].convert("RGB").resize((512, 512))
+        mask_image = image_path["mask"].convert("RGB").resize((512, 512))
 
-
-def stable_diffusion_inpiant_controlnet_canny_app():
-    with gr.Blocks():
-        with gr.Row():
-            with gr.Column():
-                inpaint_image_file = gr.Image(
-                    source="upload",
-                    tool="sketch",
-                    elem_id="image_upload",
-                    type="pil",
-                    label="Upload",
-                )
-
-                inpaint_model_id = gr.Dropdown(
-                    choices=stable_inpaint_model_list,
-                    value=stable_inpaint_model_list[0],
-                    label="Inpaint Model Id",
-                )
-
-                inpaint_controlnet_model_id = gr.Dropdown(
-                    choices=controlnet_model_list,
-                    value=controlnet_model_list[0],
-                    label="ControlNet Model Id",
-                )
-
-                inpaint_prompt = gr.Textbox(
-                    lines=1, value=prompt_list[0], label="Prompt"
-                )
-
-                inpaint_negative_prompt = gr.Textbox(
-                    lines=1,
-                    value=negative_prompt_list[0],
-                    label="Negative Prompt",
-                )
-
-                with gr.Accordion("Advanced Options", open=False):
-                    controlnet_conditioning_scale = gr.Slider(
-                        minimum=0.1,
-                        maximum=1,
-                        step=0.1,
-                        value=0.5,
-                        label="ControlNet Conditioning Scale",
-                    )
-
-                    inpaint_guidance_scale = gr.Slider(
-                        minimum=0.1,
-                        maximum=15,
-                        step=0.1,
-                        value=7.5,
-                        label="Guidance Scale",
-                    )
-
-                    inpaint_num_inference_step = gr.Slider(
-                        minimum=1,
-                        maximum=100,
-                        step=1,
-                        value=50,
-                        label="Num Inference Step",
-                    )
-
-                inpaint_predict = gr.Button(value="Generator")
-
-            with gr.Column():
-                output_image = gr.Image(label="Outputs")
-
-        inpaint_predict.click(
-            fn=stable_diffusion_inpiant_controlnet_canny,
-            inputs=[
-                inpaint_image_file,
-                inpaint_model_id,
-                inpaint_controlnet_model_id,
-                inpaint_prompt,
-                inpaint_negative_prompt,
-                controlnet_conditioning_scale,
-                inpaint_guidance_scale,
-                inpaint_num_inference_step,
-            ],
-            outputs=output_image,
+        control_image = self.controlnet_canny_inpaint(image_path=image_path)
+        pipe = self.load_model(
+            stable_model_path=stable_model_path,
+            controlnet_model_path=controlnet_model_path,
+            scheduler=scheduler,
         )
+
+        if seed_generator == 0:
+            random_seed = torch.randint(0, 1000000, (1,))
+            generator = torch.manual_seed(random_seed)
+        else:
+            generator = torch.manual_seed(seed_generator)
+
+        output = pipe(
+            prompt=prompt,
+            image=normal_image,
+            mask_image=mask_image,
+            control_image=control_image,
+            negative_prompt=negative_prompt,
+            num_images_per_prompt=num_images_per_prompt,
+            num_inference_steps=num_inference_step,
+            guidance_scale=guidance_scale,
+            controlnet_conditioning_scale=controlnet_conditioning_scale,
+            generator=generator,
+        ).images
+
+        return output
+
+    def app():
+        with gr.Blocks():
+            with gr.Row():
+                with gr.Column():
+                    controlnet_canny_inpaint_image_file = gr.Image(
+                        source="upload",
+                        tool="sketch",
+                        elem_id="image_upload",
+                        type="pil",
+                        label="Upload",
+                    )
+
+                    controlnet_canny_inpaint_prompt = gr.Textbox(
+                        lines=1, placeholder="Prompt", show_label=False
+                    )
+
+                    controlnet_canny_inpaint_negative_prompt = gr.Textbox(
+                        lines=1,
+                        show_label=False,
+                        placeholder="Negative Prompt",
+                    )
+                    with gr.Row():
+                        with gr.Column():
+                            controlnet_canny_inpaint_stable_model_id = (
+                                gr.Dropdown(
+                                    choices=stable_model_list,
+                                    value=stable_model_list[0],
+                                    label="Stable Model Id",
+                                )
+                            )
+
+                            controlnet_canny_inpaint_guidance_scale = gr.Slider(
+                                minimum=0.1,
+                                maximum=15,
+                                step=0.1,
+                                value=7.5,
+                                label="Guidance Scale",
+                            )
+
+                            controlnet_canny_inpaint_num_inference_step = (
+                                gr.Slider(
+                                    minimum=1,
+                                    maximum=100,
+                                    step=1,
+                                    value=50,
+                                    label="Num Inference Step",
+                                )
+                            )
+                            controlnet_canny_inpaint_num_images_per_prompt = (
+                                gr.Slider(
+                                    minimum=1,
+                                    maximum=10,
+                                    step=1,
+                                    value=1,
+                                    label="Number Of Images",
+                                )
+                            )
+                        with gr.Row():
+                            with gr.Column():
+                                controlnet_canny_inpaint_model_id = gr.Dropdown(
+                                    choices=controlnet_canny_model_list,
+                                    value=controlnet_canny_model_list[0],
+                                    label="Controlnet Model Id",
+                                )
+                                controlnet_canny_inpaint_scheduler = (
+                                    gr.Dropdown(
+                                        choices=SCHEDULER_LIST,
+                                        value=SCHEDULER_LIST[0],
+                                        label="Scheduler",
+                                    )
+                                )
+                                controlnet_canny_inpaint_controlnet_conditioning_scale = gr.Slider(
+                                    minimum=0.1,
+                                    maximum=1.0,
+                                    step=0.1,
+                                    value=0.5,
+                                    label="Controlnet Conditioning Scale",
+                                )
+
+                                controlnet_canny_inpaint_seed_generator = (
+                                    gr.Slider(
+                                        minimum=0,
+                                        maximum=1000000,
+                                        step=1,
+                                        value=0,
+                                        label="Seed Generator",
+                                    )
+                                )
+
+                    controlnet_canny_inpaint_predict = gr.Button(
+                        value="Generator"
+                    )
+
+                with gr.Column():
+                    output_image = gr.Gallery(
+                        label="Generated images",
+                        show_label=False,
+                        elem_id="gallery",
+                    ).style(grid=(1, 2))
+
+            controlnet_canny_inpaint_predict.click(
+                fn=StableDiffusionControlNetInpaintCannyGenerator().generate_image,
+                inputs=[
+                    controlnet_canny_inpaint_image_file,
+                    controlnet_canny_inpaint_stable_model_id,
+                    controlnet_canny_inpaint_model_id,
+                    controlnet_canny_inpaint_prompt,
+                    controlnet_canny_inpaint_negative_prompt,
+                    controlnet_canny_inpaint_num_images_per_prompt,
+                    controlnet_canny_inpaint_guidance_scale,
+                    controlnet_canny_inpaint_num_inference_step,
+                    controlnet_canny_inpaint_controlnet_conditioning_scale,
+                    controlnet_canny_inpaint_scheduler,
+                    controlnet_canny_inpaint_seed_generator,
+                ],
+                outputs=[output_image],
+            )
