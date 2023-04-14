@@ -1,15 +1,13 @@
 ---
-title: T4 Work
-emoji: 🔥
-colorFrom: green
-colorTo: indigo
+title: Dreambooth Training
+emoji: ☁️
+colorFrom: pink
+colorTo: red
 sdk: gradio
-sdk_version: 3.17.0
+sdk_version: 3.16.2
 app_file: app.py
 pinned: false
 license: mit
-tags:
-- making-demos
 ---
 
 Check out the configuration reference at https://huggingface.co/docs/hub/spaces-config-reference
