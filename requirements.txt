@@ -1,17 +1,10 @@
---extra-index-url https://download.pytorch.org/whl/cu113
-torch==1.12.1+cu113
-torchvision==0.13.1+cu113
-diffusers==0.11.1
-accelerate==0.12.0
-OmegaConf
-wget
-pytorch_lightning
-huggingface_hub
-ftfy
-transformers==4.25.1
-pyfiglet
-triton==2.0.0.dev20221030
-bitsandbytes==0.35.4
-python-slugify
-requests
-tensorboard
+codeformer-pip==0.0.4
+controlnet_aux==0.0.3
+diffusers==0.15.0
+gradio==3.27.0
+numpy==1.24.2
+opencv_python==4.7.0.72
+Pillow==9.5.0
+torch==2.0.0
+transformers==4.28.1
+xformers
