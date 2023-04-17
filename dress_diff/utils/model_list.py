@@ -1,5 +1,5 @@
 stable_model_list = [
-    "dress_model",
+    "kadirnar/dress_model",
 ]
 
 controlnet_canny_model_list = [
